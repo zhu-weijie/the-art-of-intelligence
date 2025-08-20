@@ -22,6 +22,10 @@ deep_agent = DeepAgent(
 )
 
 
+class ChatRequest(BaseModel):
+    query: str
+
+
 class PlanRequest(BaseModel):
     tasks: list[str]
 
@@ -43,6 +47,15 @@ def read_root():
 
 
 # --- Agent Endpoints ---
+@app.post("/agent/chat")
+def agent_chat(request: ChatRequest):
+    """
+    The main endpoint for interacting with the deep agent.
+    Simulates a chat response by returning a plan of action.
+    """
+    return deep_agent.chat(query=request.query)
+
+
 @app.get("/agent/sub-agents", response_model=list[SubAgent])
 def get_sub_agents():
     """Returns the configuration of all registered sub-agents."""
