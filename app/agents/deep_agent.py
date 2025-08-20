@@ -50,3 +50,51 @@ class DeepAgent(Agent):
                 "status": "error",
                 "message": f"No action defined for tool '{tool_name}'.",
             }
+
+    def chat(self, query: str):
+        """
+        Simulates the agent's thinking process in response to a query.
+        Returns a mocked plan of action.
+        """
+        print(f"Received query: {query}")
+
+        # This is the mocked "thinking" process.
+        # In a real implementation, an LLM call would generate this plan.
+        mock_plan = {
+            "user_query": query,
+            "thought": "The user wants me to perform a research task. I need to break this down into a plan, use my tools to manage the process, and delegate to my specialized sub-agents.",
+            "plan_of_action": [
+                {
+                    "step": 1,
+                    "action": "use_tool",
+                    "tool_name": "planning",
+                    "arguments": {
+                        "tasks": [
+                            "Write the original question to 'question.txt'",
+                            "Delegate the main research to the 'research-agent'",
+                            "Write the research findings to 'final_report.md'",
+                            "Delegate the critique of the report to the 'critique-agent'",
+                        ]
+                    },
+                },
+                {
+                    "step": 2,
+                    "action": "use_tool",
+                    "tool_name": "file_system",
+                    "arguments": {"filename": "question.txt", "content": query},
+                },
+                {
+                    "step": 3,
+                    "action": "delegate_to_sub_agent",
+                    "sub_agent_name": "research-agent",
+                    "instructions": "Please conduct a detailed investigation into the user's query.",
+                },
+                {
+                    "step": 4,
+                    "action": "delegate_to_sub_agent",
+                    "sub_agent_name": "critique-agent",
+                    "instructions": "Please review the file 'final_report.md' and provide feedback for improvement.",
+                },
+            ],
+        }
+        return mock_plan
