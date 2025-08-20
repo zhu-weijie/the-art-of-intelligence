@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from app.tools.planning import TodoListTool
+from tools.planning import TodoListTool
 
 app = FastAPI()
 
