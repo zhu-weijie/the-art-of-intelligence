@@ -5,6 +5,8 @@ from tools.filesystem import FileSystemTool
 from agents.deep_agent import DeepAgent
 from prompts.system import GENERAL_SYSTEM_PROMPT
 from typing import Any
+from agents.sub_agent import SubAgent
+from agents.sub_agent_configs import all_sub_agents
 
 app = FastAPI()
 
@@ -15,6 +17,7 @@ todo_tool = TodoListTool()
 # --- Agent Instantiation ---
 deep_agent = DeepAgent(
     tools={"file_system": fs_tool, "planning": todo_tool},
+    sub_agents=all_sub_agents,
     system_prompt=GENERAL_SYSTEM_PROMPT,
 )
 
@@ -40,6 +43,12 @@ def read_root():
 
 
 # --- Agent Endpoints ---
+@app.get("/agent/sub-agents", response_model=list[SubAgent])
+def get_sub_agents():
+    """Returns the configuration of all registered sub-agents."""
+    return list(deep_agent.sub_agents.values())
+
+
 @app.post("/agent/run-tool")
 def agent_run_tool(request: ToolRunRequest):
     """Commands the agent to run a specific tool with given arguments."""
