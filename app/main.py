@@ -4,6 +4,7 @@ from tools.planning import TodoListTool
 from tools.filesystem import FileSystemTool
 from agents.deep_agent import DeepAgent
 from prompts.system import GENERAL_SYSTEM_PROMPT
+from typing import Any
 
 app = FastAPI()
 
@@ -12,8 +13,10 @@ fs_tool = FileSystemTool()
 todo_tool = TodoListTool()
 
 # --- Agent Instantiation ---
-# Create a single, shared instance of our agent
-deep_agent = DeepAgent(tools=[fs_tool, todo_tool], system_prompt=GENERAL_SYSTEM_PROMPT)
+deep_agent = DeepAgent(
+    tools={"file_system": fs_tool, "planning": todo_tool},
+    system_prompt=GENERAL_SYSTEM_PROMPT,
+)
 
 
 class PlanRequest(BaseModel):
@@ -25,13 +28,27 @@ class FileWriteRequest(BaseModel):
     content: str
 
 
+class ToolRunRequest(BaseModel):
+    tool_name: str
+    kwargs: dict[str, Any]
+
+
 # --- API Endpoints ---
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
 
 
-# --- New Agent Endpoint ---
+# --- Agent Endpoints ---
+@app.post("/agent/run-tool")
+def agent_run_tool(request: ToolRunRequest):
+    """Commands the agent to run a specific tool with given arguments."""
+    result = deep_agent.run_tool(tool_name=request.tool_name, **request.kwargs)
+    if result.get("status") == "error":
+        raise HTTPException(status_code=400, detail=result["message"])
+    return result
+
+
 @app.get("/agent/prompt")
 def get_agent_prompt():
     """Returns the system prompt the agent was initialized with."""
