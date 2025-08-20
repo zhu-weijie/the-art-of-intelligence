@@ -1,15 +1,18 @@
 from .base import Agent
 from tools.filesystem import FileSystemTool
 from tools.planning import TodoListTool
+from .sub_agent import SubAgent
 
 
 class DeepAgent(Agent):
     """The main class for the deep agent."""
 
-    def __init__(self, tools: dict, system_prompt: str):
+    def __init__(self, tools: dict, sub_agents: list[SubAgent], system_prompt: str):
         self.tools = tools
+        self.sub_agents = {agent.name: agent for agent in sub_agents}
         self.system_prompt = system_prompt
         print("DeepAgent initialized.")
+        print(f"Registered Sub-Agents: {list(self.sub_agents.keys())}")
 
     def run_tool(self, tool_name: str, **kwargs):
         """
